@@ -9,13 +9,92 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      video_categories: {
+        Row: {
+          banner_url: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          banner_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          banner_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      videos: {
+        Row: {
+          category_id: string | null
+          client: string | null
+          created_at: string | null
+          description: string | null
+          duration: string | null
+          id: string
+          thumbnail_url: string | null
+          title: string
+          upload_date: string | null
+          video_url: string
+          views: number | null
+        }
+        Insert: {
+          category_id?: string | null
+          client?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          id?: string
+          thumbnail_url?: string | null
+          title: string
+          upload_date?: string | null
+          video_url: string
+          views?: number | null
+        }
+        Update: {
+          category_id?: string | null
+          client?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          id?: string
+          thumbnail_url?: string | null
+          title?: string
+          upload_date?: string | null
+          video_url?: string
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "videos_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "video_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_video_views: {
+        Args: { video_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

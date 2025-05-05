@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Database } from "@/integrations/supabase/types";
 
 export interface VideoCategory {
   id: string;
@@ -30,7 +31,7 @@ export async function getVideos(): Promise<Video[]> {
       .from("videos")
       .select(`
         *,
-        video_categories(
+        video_categories (
           id,
           name,
           slug
@@ -58,7 +59,7 @@ export async function getVideoById(id: string): Promise<Video | null> {
       .from("videos")
       .select(`
         *,
-        video_categories(
+        video_categories (
           id,
           name,
           slug
@@ -114,7 +115,7 @@ export async function getVideosByCategory(categorySlug: string): Promise<Video[]
       .from("videos")
       .select(`
         *,
-        video_categories(
+        video_categories (
           id,
           name,
           slug

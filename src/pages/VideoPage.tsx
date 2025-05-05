@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -24,12 +23,12 @@ const VideoPage = () => {
     queryFn: () => getVideos(),
     select: (data) => {
       // Filtrer pour obtenir des vidéos similaires (même catégorie, mais pas la même vidéo)
-      if (!video) return [];
+      if (!video || !video.category_id) return [];
       return data
         .filter(v => v.category_id === video.category_id && v.id !== video.id)
         .slice(0, 3); // Limiter à 3 vidéos similaires
     },
-    enabled: !!video,
+    enabled: !!video && !!video.category_id,
   });
 
   if (isVideoLoading) {

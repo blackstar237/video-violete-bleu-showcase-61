@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -97,7 +96,7 @@ const CategoryPage = () => {
               ))}
             </div>
           ) : videos && videos.length > 0 ? (
-            <VideoGrid videos={videos.map((video: Video) => ({
+            <VideoGrid videos={(videos as Video[]).map((video: Video) => ({
               id: video.id,
               title: video.title,
               thumbnail: video.thumbnail_url || "",
