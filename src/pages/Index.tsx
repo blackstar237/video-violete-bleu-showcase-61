@@ -1,5 +1,6 @@
 
-import React, { useState } from "react";
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import VideoHero from "@/components/VideoHero";
@@ -7,8 +8,10 @@ import VideoGrid from "@/components/VideoGrid";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { getCategories, getVideos } from "@/services/videoService";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Données fictives pour la présentation
+// Données fictives pour la présentation héro (à remplacer par des données réelles ultérieurement)
 const featuredVideo = {
   id: "featured-1",
   title: "Production de qualité professionnelle pour votre entreprise",
@@ -16,59 +19,19 @@ const featuredVideo = {
   backgroundUrl: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=1920",
 };
 
-const recentVideos = [
-  {
-    id: "video-1",
-    title: "Présentation produit - XYZ Technologies",
-    thumbnail: "https://images.unsplash.com/photo-1626908013351-800ddd734b8a?w=800&h=600&crop=focalpoint",
-    category: "Produits",
-    duration: "2:15",
-  },
-  {
-    id: "video-2",
-    title: "Témoignage client - Success Corp",
-    thumbnail: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&h=600&crop=focalpoint",
-    category: "Témoignages",
-    duration: "3:42",
-  },
-  {
-    id: "video-3",
-    title: "Événement d'entreprise - Lancement 2023",
-    thumbnail: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=600&crop=focalpoint",
-    category: "Événements",
-    duration: "4:30",
-  },
-  {
-    id: "video-4",
-    title: "Série sociale - Conseils d'experts",
-    thumbnail: "https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?w=800&h=600&crop=focalpoint",
-    category: "Réseaux sociaux",
-    duration: "1:45",
-  },
-  {
-    id: "video-5",
-    title: "Behind the scenes - Studio Tour 2023",
-    thumbnail: "https://images.unsplash.com/photo-1571331246630-de4d4b8a0ddf?w=800&h=600&crop=focalpoint",
-    category: "Corporate",
-    duration: "5:12",
-  },
-  {
-    id: "video-6",
-    title: "Animation 3D - Vision du futur",
-    thumbnail: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=800&h=600&crop=focalpoint",
-    category: "Animation",
-    duration: "2:30",
-  },
-];
-
-const categories = [
-  { id: "corporate", name: "Corporate", description: "Vidéos de présentation d'entreprise et communication interne.", thumbnail: "https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?w=800&h=600&crop=focalpoint" },
-  { id: "events", name: "Événements", description: "Couverture de vos événements professionnels et cérémonies.", thumbnail: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=800&h=600&crop=focalpoint" },
-  { id: "products", name: "Produits", description: "Mettez en valeur vos produits avec des vidéos de qualité.", thumbnail: "https://images.unsplash.com/photo-1542744173-05336fcc7ad4?w=800&h=600&crop=focalpoint" },
-  { id: "social", name: "Réseaux sociaux", description: "Contenu optimisé pour toutes les plateformes sociales.", thumbnail: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&h=600&crop=focalpoint" },
-];
-
 const Index = () => {
+  const { data: videos, isLoading: isVideosLoading } = useQuery({
+    queryKey: ['recentVideos'],
+    queryFn: getVideos,
+    select: data => data?.slice(0, 6) // Prendre les 6 premières vidéos
+  });
+
+  const { data: categories, isLoading: isCategoriesLoading } = useQuery({
+    queryKey: ['featuredCategories'],
+    queryFn: getCategories,
+    select: data => data?.slice(0, 4) // Prendre les 4 premières catégories
+  });
+
   return (
     <>
       <Navbar />
@@ -93,7 +56,22 @@ const Index = () => {
               </Button>
             </Link>
           </div>
-          <VideoGrid videos={recentVideos} />
+          
+          {isVideosLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <Skeleton key={i} className="h-64 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : (
+            <VideoGrid videos={(videos || []).map(video => ({
+              id: video.id,
+              title: video.title,
+              thumbnail: video.thumbnail_url || "",
+              category: video.video_categories?.name || "",
+              duration: video.duration || ""
+            }))} />
+          )}
         </div>
       </section>
       
@@ -105,29 +83,37 @@ const Index = () => {
             Explorez nos <span className="text-gradient">catégories</span>
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category) => (
-              <Link 
-                to={`/categories/${category.id}`} 
-                key={category.id}
-                className="group glass-card overflow-hidden rounded-lg p-6 transition-transform hover:transform hover:scale-[1.02]"
-              >
-                <div className="mb-4 overflow-hidden rounded-md">
-                  <img 
-                    src={category.thumbnail} 
-                    alt={category.name}
-                    className="h-40 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-primary transition-colors">
-                  {category.name}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {category.description}
-                </p>
-              </Link>
-            ))}
-          </div>
+          {isCategoriesLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map(i => (
+                <Skeleton key={i} className="h-64 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {(categories || []).map((category) => (
+                <Link 
+                  to={`/categories/${category.slug}`} 
+                  key={category.id}
+                  className="group glass-card overflow-hidden rounded-lg p-6 transition-transform hover:transform hover:scale-[1.02]"
+                >
+                  <div className="mb-4 overflow-hidden rounded-md">
+                    <img 
+                      src={category.banner_url || `https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?w=800&h=600&crop=focalpoint`} 
+                      alt={category.name}
+                      className="h-40 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-primary transition-colors">
+                    {category.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {category.description || `Découvrez notre sélection de vidéos ${category.name}.`}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
       

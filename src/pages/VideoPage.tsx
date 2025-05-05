@@ -1,61 +1,77 @@
 
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import VideoPlayer from "@/components/VideoPlayer";
 import VideoGrid from "@/components/VideoGrid";
-import { Link } from "react-router-dom";
 import { Calendar, Clock, Eye, User } from "lucide-react";
-
-// Données fictives pour la démonstration
-const videoData = {
-  id: "video-1",
-  title: "Présentation produit - XYZ Technologies",
-  description: "Découvrez les nouvelles fonctionnalités innovantes de la dernière gamme de produits XYZ Technologies. Cette présentation vidéo explore en détail les caractéristiques clés, les avantages pour les utilisateurs et les cas d'utilisation pratiques.",
-  videoSrc: "https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-a-new-project-1707-large.mp4",
-  thumbnail: "https://images.unsplash.com/photo-1626908013351-800ddd734b8a?w=800&h=600&crop=focalpoint",
-  category: "Produits",
-  duration: "2:15",
-  views: "1.2k",
-  uploadDate: "15 Avr 2023",
-  client: "XYZ Technologies"
-};
-
-const relatedVideos = [
-  {
-    id: "video-2",
-    title: "Témoignage client - Success Corp",
-    thumbnail: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&h=600&crop=focalpoint",
-    category: "Témoignages",
-    duration: "3:42",
-  },
-  {
-    id: "video-3",
-    title: "Événement d'entreprise - Lancement 2023",
-    thumbnail: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=600&crop=focalpoint",
-    category: "Événements",
-    duration: "4:30",
-  },
-  {
-    id: "video-4",
-    title: "Série sociale - Conseils d'experts",
-    thumbnail: "https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?w=800&h=600&crop=focalpoint",
-    category: "Réseaux sociaux",
-    duration: "1:45",
-  }
-];
+import { getVideoById, getVideos } from "@/services/videoService";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const VideoPage = () => {
   const { id } = useParams();
-  const [video, setVideo] = useState(videoData);
   
-  // En production, vous voudriez charger la vidéo en fonction de l'ID
-  useEffect(() => {
-    // Simulation d'une requête API
-    console.log(`Loading video with id: ${id}`);
-    // Dans une application réelle, vous feriez un fetch ici
-  }, [id]);
+  const { data: video, isLoading: isVideoLoading, error: videoError } = useQuery({
+    queryKey: ['video', id],
+    queryFn: () => getVideoById(id as string),
+    enabled: !!id,
+  });
+  
+  const { data: relatedVideos, isLoading: isRelatedLoading } = useQuery({
+    queryKey: ['relatedVideos', video?.category_id],
+    queryFn: () => getVideos(),
+    select: (data) => {
+      // Filtrer pour obtenir des vidéos similaires (même catégorie, mais pas la même vidéo)
+      return data
+        .filter(v => v.category_id === video?.category_id && v.id !== video?.id)
+        .slice(0, 3); // Limiter à 3 vidéos similaires
+    },
+    enabled: !!video,
+  });
+
+  if (isVideoLoading) {
+    return (
+      <>
+        <Navbar />
+        <main className="pt-16 bg-theme-dark min-h-screen">
+          <div className="container mx-auto px-4 py-8">
+            <Skeleton className="w-full aspect-video mb-6" />
+            <Skeleton className="h-10 w-3/4 mb-4" />
+            <Skeleton className="h-4 w-1/2 mb-2" />
+            <Skeleton className="h-4 w-1/3 mb-6" />
+            <Skeleton className="h-40 w-full" />
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (videoError || !video) {
+    return (
+      <>
+        <Navbar />
+        <main className="pt-16 bg-theme-dark min-h-screen">
+          <div className="container mx-auto px-4 py-8 text-center">
+            <h1 className="text-2xl text-white mb-4">Vidéo non trouvée</h1>
+            <Link to="/videos" className="text-primary hover:underline">
+              Retour à toutes les vidéos
+            </Link>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  // Formatage de la date
+  const formattedDate = new Date(video.upload_date).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
 
   return (
     <>
@@ -66,8 +82,8 @@ const VideoPage = () => {
           {/* Video Player Section */}
           <div className="w-full aspect-video mb-6">
             <VideoPlayer 
-              src={video.videoSrc} 
-              poster={video.thumbnail}
+              src={video.video_url} 
+              poster={video.thumbnail_url || undefined}
               title={video.title}
               className="w-full h-full rounded-lg overflow-hidden shadow-lg"
             />
@@ -79,28 +95,34 @@ const VideoPage = () => {
               <h1 className="text-2xl md:text-3xl font-bold text-white mb-4">{video.title}</h1>
               
               <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-6 text-sm text-white/60">
-                <div className="flex items-center">
-                  <Clock className="h-4 w-4 mr-1" />
-                  <span>{video.duration}</span>
-                </div>
+                {video.duration && (
+                  <div className="flex items-center">
+                    <Clock className="h-4 w-4 mr-1" />
+                    <span>{video.duration}</span>
+                  </div>
+                )}
                 <div className="flex items-center">
                   <Eye className="h-4 w-4 mr-1" />
                   <span>{video.views} vues</span>
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-1" />
-                  <span>{video.uploadDate}</span>
+                  <span>{formattedDate}</span>
                 </div>
-                <div className="flex items-center">
-                  <User className="h-4 w-4 mr-1" />
-                  <span>Client: {video.client}</span>
-                </div>
-                <Link 
-                  to={`/categories/${video.category.toLowerCase()}`}
-                  className="inline-flex items-center px-3 py-1 rounded-full bg-theme-violet-light/20 text-theme-violet-light hover:bg-theme-violet-light/30 transition-colors"
-                >
-                  {video.category}
-                </Link>
+                {video.client && (
+                  <div className="flex items-center">
+                    <User className="h-4 w-4 mr-1" />
+                    <span>Client: {video.client}</span>
+                  </div>
+                )}
+                {video.video_categories && (
+                  <Link 
+                    to={`/categories/${video.video_categories.slug}`}
+                    className="inline-flex items-center px-3 py-1 rounded-full bg-theme-violet-light/20 text-theme-violet-light hover:bg-theme-violet-light/30 transition-colors"
+                  >
+                    {video.video_categories.name}
+                  </Link>
+                )}
               </div>
               
               <div className="prose prose-invert max-w-none">
@@ -123,10 +145,29 @@ const VideoPage = () => {
           </div>
           
           {/* Related Videos */}
-          <div className="mb-16">
-            <h2 className="text-2xl font-bold text-white mb-6">Vidéos similaires</h2>
-            <VideoGrid videos={relatedVideos} columns={3} />
-          </div>
+          {relatedVideos && relatedVideos.length > 0 && (
+            <div className="mb-16">
+              <h2 className="text-2xl font-bold text-white mb-6">Vidéos similaires</h2>
+              {isRelatedLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {[1, 2, 3].map(i => (
+                    <Skeleton key={i} className="h-64 w-full rounded-lg" />
+                  ))}
+                </div>
+              ) : (
+                <VideoGrid 
+                  videos={relatedVideos.map(v => ({
+                    id: v.id,
+                    title: v.title,
+                    thumbnail: v.thumbnail_url || "",
+                    category: v.video_categories?.name || "",
+                    duration: v.duration || ""
+                  }))} 
+                  columns={3}
+                />
+              )}
+            </div>
+          )}
         </div>
       </main>
       
