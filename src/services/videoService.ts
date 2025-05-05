@@ -2,6 +2,14 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+export interface VideoCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  banner_url: string | null;
+}
+
 export interface Video {
   id: string;
   title: string;
@@ -13,14 +21,7 @@ export interface Video {
   category_id: string | null;
   client: string | null;
   upload_date: string;
-}
-
-export interface VideoCategory {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  banner_url: string | null;
+  video_categories?: VideoCategory;
 }
 
 export async function getVideos() {
@@ -29,7 +30,7 @@ export async function getVideos() {
       .from("videos")
       .select(`
         *,
-        video_categories:category_id (
+        video_categories(
           id,
           name,
           slug
@@ -57,7 +58,7 @@ export async function getVideoById(id: string) {
       .from("videos")
       .select(`
         *,
-        video_categories:category_id (
+        video_categories(
           id,
           name,
           slug
@@ -113,7 +114,7 @@ export async function getVideosByCategory(categorySlug: string) {
       .from("videos")
       .select(`
         *,
-        video_categories:category_id (
+        video_categories(
           id,
           name,
           slug
@@ -136,7 +137,7 @@ export async function getVideosByCategory(categorySlug: string) {
   }
 }
 
-export async function getCategories() {
+export async function getCategories(): Promise<VideoCategory[]> {
   try {
     const { data, error } = await supabase
       .from("video_categories")
@@ -157,7 +158,7 @@ export async function getCategories() {
   }
 }
 
-export async function getCategoryBySlug(slug: string) {
+export async function getCategoryBySlug(slug: string): Promise<VideoCategory | null> {
   try {
     const { data, error } = await supabase
       .from("video_categories")

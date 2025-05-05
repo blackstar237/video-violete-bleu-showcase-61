@@ -6,6 +6,20 @@ import { Film, Instagram, Facebook, Twitter, Mail } from 'lucide-react';
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
+  // Pour éviter d'utiliser les composants Link directement dans le Footer
+  // si utilisé en dehors d'un contexte de routeur
+  const isClientSide = typeof window !== 'undefined';
+
+  // Composant d'enveloppe qui utilise soit Link, soit un a selon le contexte
+  const SafeLink = ({ to, children, className }: { to: string, children: React.ReactNode, className?: string }) => {
+    // Si nous sommes côté client et que l'URL correspond au pattern interne
+    if (isClientSide && to.startsWith('/')) {
+      return <Link to={to} className={className}>{children}</Link>;
+    }
+    // Sinon, utiliser un lien standard
+    return <a href={to} className={className}>{children}</a>;
+  };
+
   return (
     <footer className="bg-theme-blue-dark relative mt-16">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-theme-violet-light to-transparent opacity-30"></div>
@@ -13,12 +27,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {/* Logo & description */}
           <div className="col-span-1 md:col-span-1 lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
+            <SafeLink to="/" className="flex items-center gap-2 mb-4">
               <div className="flex h-9 w-9 items-center justify-center rounded-full overflow-hidden border border-primary/20 bg-theme-dark">
                 <Film className="h-5 w-5 text-primary" />
               </div>
               <span className="text-xl font-semibold text-gradient">VideoFolio</span>
-            </Link>
+            </SafeLink>
             <p className="text-sm text-muted-foreground max-w-xs">
               Nous créons des vidéos professionnelles captivantes pour mettre en valeur votre entreprise et vos produits.
             </p>
@@ -43,29 +57,29 @@ const Footer = () => {
             <h3 className="text-sm font-medium uppercase tracking-wider text-foreground mb-4">Navigation</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <SafeLink to="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Accueil
-                </Link>
+                </SafeLink>
               </li>
               <li>
-                <Link to="/videos" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <SafeLink to="/videos" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Vidéos
-                </Link>
+                </SafeLink>
               </li>
               <li>
-                <Link to="/categories" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <SafeLink to="/categories" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Catégories
-                </Link>
+                </SafeLink>
               </li>
               <li>
-                <Link to="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <SafeLink to="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   À propos
-                </Link>
+                </SafeLink>
               </li>
               <li>
-                <Link to="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <SafeLink to="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Contact
-                </Link>
+                </SafeLink>
               </li>
             </ul>
           </div>
@@ -75,24 +89,24 @@ const Footer = () => {
             <h3 className="text-sm font-medium uppercase tracking-wider text-foreground mb-4">Catégories</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/categories/corporate" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <SafeLink to="/categories/corporate" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Corporate
-                </Link>
+                </SafeLink>
               </li>
               <li>
-                <Link to="/categories/events" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <SafeLink to="/categories/events" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Événements
-                </Link>
+                </SafeLink>
               </li>
               <li>
-                <Link to="/categories/product" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <SafeLink to="/categories/products" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Produits
-                </Link>
+                </SafeLink>
               </li>
               <li>
-                <Link to="/categories/social" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <SafeLink to="/categories/social" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Réseaux sociaux
-                </Link>
+                </SafeLink>
               </li>
             </ul>
           </div>
