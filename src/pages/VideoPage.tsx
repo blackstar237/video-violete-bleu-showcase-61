@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
@@ -7,11 +7,11 @@ import Footer from "@/components/Footer";
 import VideoPlayer from "@/components/VideoPlayer";
 import VideoGrid from "@/components/VideoGrid";
 import { Calendar, Clock, Eye, User } from "lucide-react";
-import { getVideoById, getVideos } from "@/services/videoService";
+import { getVideoById, getVideos, Video } from "@/services/videoService";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const VideoPage = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   
   const { data: video, isLoading: isVideoLoading, error: videoError } = useQuery({
     queryKey: ['video', id],
@@ -24,8 +24,9 @@ const VideoPage = () => {
     queryFn: () => getVideos(),
     select: (data) => {
       // Filtrer pour obtenir des vidéos similaires (même catégorie, mais pas la même vidéo)
+      if (!video) return [];
       return data
-        .filter(v => v.category_id === video?.category_id && v.id !== video?.id)
+        .filter(v => v.category_id === video.category_id && v.id !== video.id)
         .slice(0, 3); // Limiter à 3 vidéos similaires
     },
     enabled: !!video,
@@ -156,7 +157,7 @@ const VideoPage = () => {
                 </div>
               ) : (
                 <VideoGrid 
-                  videos={relatedVideos.map(v => ({
+                  videos={relatedVideos.map((v: Video) => ({
                     id: v.id,
                     title: v.title,
                     thumbnail: v.thumbnail_url || "",

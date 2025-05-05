@@ -8,7 +8,7 @@ import VideoGrid from "@/components/VideoGrid";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { getCategories, getVideos } from "@/services/videoService";
+import { getCategories, getVideos, Video } from "@/services/videoService";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Données fictives pour la présentation héro (à remplacer par des données réelles ultérieurement)
@@ -64,7 +64,7 @@ const Index = () => {
               ))}
             </div>
           ) : (
-            <VideoGrid videos={(videos || []).map(video => ({
+            <VideoGrid videos={(videos || []).map((video: Video) => ({
               id: video.id,
               title: video.title,
               thumbnail: video.thumbnail_url || "",

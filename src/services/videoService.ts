@@ -24,7 +24,7 @@ export interface Video {
   video_categories?: VideoCategory;
 }
 
-export async function getVideos() {
+export async function getVideos(): Promise<Video[]> {
   try {
     const { data, error } = await supabase
       .from("videos")
@@ -44,7 +44,7 @@ export async function getVideos() {
       return [];
     }
 
-    return data;
+    return data as Video[];
   } catch (err) {
     console.error("Erreur:", err);
     toast.error("Impossible de charger les vidéos");
@@ -52,7 +52,7 @@ export async function getVideos() {
   }
 }
 
-export async function getVideoById(id: string) {
+export async function getVideoById(id: string): Promise<Video | null> {
   try {
     const { data, error } = await supabase
       .from("videos")
@@ -76,7 +76,7 @@ export async function getVideoById(id: string) {
     // Incrémenter le compteur de vues
     await incrementViews(id);
 
-    return data;
+    return data as Video;
   } catch (err) {
     console.error("Erreur:", err);
     toast.error("Impossible de charger la vidéo");
@@ -96,7 +96,7 @@ export async function incrementViews(id: string) {
   }
 }
 
-export async function getVideosByCategory(categorySlug: string) {
+export async function getVideosByCategory(categorySlug: string): Promise<Video[]> {
   try {
     const { data: category, error: categoryError } = await supabase
       .from("video_categories")
@@ -129,7 +129,7 @@ export async function getVideosByCategory(categorySlug: string) {
       return [];
     }
 
-    return data;
+    return data as Video[];
   } catch (err) {
     console.error("Erreur:", err);
     toast.error("Impossible de charger les vidéos");
@@ -150,7 +150,7 @@ export async function getCategories(): Promise<VideoCategory[]> {
       return [];
     }
 
-    return data;
+    return data as VideoCategory[];
   } catch (err) {
     console.error("Erreur:", err);
     toast.error("Impossible de charger les catégories");
@@ -172,7 +172,7 @@ export async function getCategoryBySlug(slug: string): Promise<VideoCategory | n
       return null;
     }
 
-    return data;
+    return data as VideoCategory;
   } catch (err) {
     console.error("Erreur:", err);
     toast.error("Impossible de charger la catégorie");

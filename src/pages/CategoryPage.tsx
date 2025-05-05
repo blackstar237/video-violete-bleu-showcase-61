@@ -1,11 +1,11 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import VideoGrid from "@/components/VideoGrid";
-import { getCategoryBySlug, getVideosByCategory } from "@/services/videoService";
+import { getCategoryBySlug, getVideosByCategory, Video } from "@/services/videoService";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const CategoryPage = () => {
@@ -97,7 +97,7 @@ const CategoryPage = () => {
               ))}
             </div>
           ) : videos && videos.length > 0 ? (
-            <VideoGrid videos={videos.map(video => ({
+            <VideoGrid videos={videos.map((video: Video) => ({
               id: video.id,
               title: video.title,
               thumbnail: video.thumbnail_url || "",

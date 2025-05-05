@@ -7,7 +7,7 @@ import VideoGrid from "@/components/VideoGrid";
 import CategoryFilter from "@/components/CategoryFilter";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { getCategories, getVideos } from "@/services/videoService";
+import { getCategories, getVideos, Video } from "@/services/videoService";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const VideosPage = () => {
@@ -31,7 +31,7 @@ const VideosPage = () => {
     
     // Filter by category
     if (selectedCategory !== "all") {
-      filtered = filtered.filter(video => 
+      filtered = filtered.filter((video: Video) => 
         video.video_categories?.slug === selectedCategory
       );
     }
@@ -40,9 +40,9 @@ const VideosPage = () => {
     if (searchQuery.trim() !== "") {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        video => 
+        (video: Video) => 
           video.title.toLowerCase().includes(query) || 
-          video.video_categories?.name.toLowerCase().includes(query) ||
+          (video.video_categories?.name.toLowerCase().includes(query) || false) ||
           (video.description && video.description.toLowerCase().includes(query))
       );
     }
@@ -117,7 +117,7 @@ const VideosPage = () => {
               ))}
             </div>
           ) : filteredVideos.length > 0 ? (
-            <VideoGrid videos={filteredVideos.map(video => ({
+            <VideoGrid videos={filteredVideos.map((video: Video) => ({
               id: video.id,
               title: video.title,
               thumbnail: video.thumbnail_url || "",
