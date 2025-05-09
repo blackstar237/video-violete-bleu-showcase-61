@@ -18,12 +18,16 @@ export interface Video {
   thumbnail_url: string | null;
   video_url: string;
   duration: string | null;
-  views: number;
+  views: number | null;
   category_id: string | null;
   client: string | null;
-  upload_date: string;
+  upload_date: string | null;
   video_categories?: VideoCategory;
 }
+
+type VideoResponse = Database['public']['Tables']['videos']['Row'] & {
+  video_categories?: Database['public']['Tables']['video_categories']['Row'];
+};
 
 export async function getVideos(): Promise<Video[]> {
   try {
@@ -32,9 +36,7 @@ export async function getVideos(): Promise<Video[]> {
       .select(`
         *,
         video_categories (
-          id,
-          name,
-          slug
+          *
         )
       `)
       .order('upload_date', { ascending: false });
@@ -45,7 +47,10 @@ export async function getVideos(): Promise<Video[]> {
       return [];
     }
 
-    return data as Video[];
+    return (data as VideoResponse[]).map(video => ({
+      ...video,
+      video_categories: video.video_categories as VideoCategory
+    }));
   } catch (err) {
     console.error("Erreur:", err);
     toast.error("Impossible de charger les vidéos");
@@ -60,9 +65,7 @@ export async function getVideoById(id: string): Promise<Video | null> {
       .select(`
         *,
         video_categories (
-          id,
-          name,
-          slug
+          *
         )
       `)
       .eq("id", id)
@@ -77,7 +80,11 @@ export async function getVideoById(id: string): Promise<Video | null> {
     // Incrémenter le compteur de vues
     await incrementViews(id);
 
-    return data as Video;
+    const videoResponse = data as VideoResponse;
+    return {
+      ...videoResponse,
+      video_categories: videoResponse.video_categories as VideoCategory
+    };
   } catch (err) {
     console.error("Erreur:", err);
     toast.error("Impossible de charger la vidéo");
@@ -116,9 +123,7 @@ export async function getVideosByCategory(categorySlug: string): Promise<Video[]
       .select(`
         *,
         video_categories (
-          id,
-          name,
-          slug
+          *
         )
       `)
       .eq("category_id", category.id)
@@ -130,7 +135,10 @@ export async function getVideosByCategory(categorySlug: string): Promise<Video[]
       return [];
     }
 
-    return data as Video[];
+    return (data as VideoResponse[]).map(video => ({
+      ...video,
+      video_categories: video.video_categories as VideoCategory
+    }));
   } catch (err) {
     console.error("Erreur:", err);
     toast.error("Impossible de charger les vidéos");
