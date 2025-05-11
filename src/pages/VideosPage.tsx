@@ -62,8 +62,18 @@ const VideosPage = () => {
     <>
       <Navbar />
       
-      <main className="bg-theme-dark min-h-screen pt-24">
-        <div className="container mx-auto px-4 py-8">
+      <main className="relative bg-theme-dark min-h-screen pt-24">
+        {/* Gradient background overlay */}
+        <div className="fixed inset-0 z-0">
+          <div className="absolute inset-0 bg-black">
+            {/* Red glow in top left corner */}
+            <div className="absolute top-0 left-0 w-1/2 h-1/2 bg-gradient-to-br from-red-600/60 via-red-900/20 to-transparent"></div>
+            {/* Blue glow in bottom right corner */}
+            <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-gradient-to-tl from-blue-500/60 via-blue-900/20 to-transparent"></div>
+          </div>
+        </div>
+        
+        <div className="container relative z-10 mx-auto px-4 py-8">
           {/* Page Title */}
           <div className="mb-12 text-center">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -63,9 +64,19 @@ const CategoryPage = () => {
     <>
       <Navbar />
       
-      <main className="bg-theme-dark min-h-screen">
+      <main className="relative bg-theme-dark min-h-screen">
+        {/* Gradient background overlay */}
+        <div className="fixed inset-0 z-0">
+          <div className="absolute inset-0 bg-black">
+            {/* Red glow in top left corner */}
+            <div className="absolute top-0 left-0 w-1/2 h-1/2 bg-gradient-to-br from-red-600/60 via-red-900/20 to-transparent"></div>
+            {/* Blue glow in bottom right corner */}
+            <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-gradient-to-tl from-blue-500/60 via-blue-900/20 to-transparent"></div>
+          </div>
+        </div>
+        
         {/* Category Hero */}
-        <section className="relative h-80 lg:h-96 overflow-hidden">
+        <section className="relative z-10 h-80 lg:h-96 overflow-hidden">
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-gradient-to-b from-theme-dark/60 via-theme-dark/80 to-theme-dark z-10"></div>
             <img 
@@ -88,7 +99,7 @@ const CategoryPage = () => {
         </section>
         
         {/* Videos */}
-        <section className="container mx-auto px-4 py-12">
+        <section className="container relative z-10 mx-auto px-4 py-12">
           {isVideosLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[1, 2, 3, 4, 5, 6].map(i => (

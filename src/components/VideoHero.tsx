@@ -22,15 +22,22 @@ const VideoHero: React.FC<VideoHeroProps> = ({
   
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      {/* Video or Image Background */}
+      {/* Background with red and blue gradient effect */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-theme-dark/60 via-theme-dark/80 to-theme-dark z-10"></div>
+        <div className="absolute inset-0 bg-black">
+          {/* Red glow in corner */}
+          <div className="absolute top-0 left-0 w-1/2 h-1/2 bg-gradient-to-br from-red-600/70 via-red-900/30 to-transparent"></div>
+          {/* Blue glow in corner */}
+          <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-gradient-to-tl from-blue-500/70 via-blue-900/30 to-transparent"></div>
+          {/* Additional dark overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-theme-dark/60 via-theme-dark/80 to-theme-dark z-10"></div>
+        </div>
         <video
           autoPlay
           muted
           loop
           playsInline
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover opacity-40"
           poster={backgroundUrl}
           preload="auto"
         >
