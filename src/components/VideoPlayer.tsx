@@ -1,8 +1,16 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Slider } from '@/components/ui/slider';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 interface VideoPlayerProps {
   src: string;
@@ -10,6 +18,8 @@ interface VideoPlayerProps {
   title?: string;
   className?: string;
 }
+
+type PlaybackQuality = '720p' | '480p' | '360p' | 'auto';
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({
   src,
@@ -25,10 +35,43 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const [buffered, setBuffered] = useState<TimeRanges | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [playbackQuality, setPlaybackQuality] = useState<PlaybackQuality>('auto');
   
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const playerRef = useRef<HTMLDivElement | null>(null);
   const controlsTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Play/Pause
+    if (isPlaying) {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          // Playback started successfully
+        }).catch(error => {
+          console.error("Error playing video:", error);
+          setIsPlaying(false);
+          toast.error("Erreur de lecture vidéo");
+        });
+      }
+    } else {
+      video.pause();
+    }
+    
+    // Volume
+    video.volume = isMuted ? 0 : volume;
+    
+    // Playback quality handling (this would be expanded with actual quality selection if using HLS/DASH)
+    if (playbackQuality !== 'auto') {
+      // This is where we would actually change quality in an adaptive streaming setup
+      console.log(`Quality set to ${playbackQuality}`);
+    }
+  }, [isPlaying, volume, isMuted, playbackQuality]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -46,37 +89,45 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       setIsPlaying(false);
     };
 
+    const handleProgress = () => {
+      setBuffered(video.buffered);
+    };
+
+    const handleWaiting = () => {
+      setLoading(true);
+    };
+
+    const handleCanPlay = () => {
+      setLoading(false);
+    };
+
+    const handlePlaying = () => {
+      setLoading(false);
+    };
+
+    // Add event listeners
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
     video.addEventListener('ended', handleEnded);
+    video.addEventListener('progress', handleProgress);
+    video.addEventListener('waiting', handleWaiting);
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('playing', handlePlaying);
 
+    // Optimize video loading
+    video.preload = "auto";
+    
+    // Clean up
     return () => {
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('ended', handleEnded);
+      video.removeEventListener('progress', handleProgress);
+      video.removeEventListener('waiting', handleWaiting);
+      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('playing', handlePlaying);
     };
   }, []);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (isPlaying) {
-      video.play().catch((error) => {
-        console.error("Error playing video:", error);
-        setIsPlaying(false);
-      });
-    } else {
-      video.pause();
-    }
-  }, [isPlaying]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    video.volume = isMuted ? 0 : volume;
-  }, [volume, isMuted]);
 
   useEffect(() => {
     if (controlsTimerRef.current) {
@@ -167,6 +218,25 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   };
 
+  const changeQuality = (quality: PlaybackQuality) => {
+    setPlaybackQuality(quality);
+    toast.success(`Qualité vidéo réglée sur ${quality}`);
+  };
+
+  // Calculate buffered progress
+  const getBufferedTime = () => {
+    if (!buffered || buffered.length === 0) return 0;
+    
+    for (let i = 0; i < buffered.length; i++) {
+      if (currentTime >= buffered.start(i) && currentTime <= buffered.end(i)) {
+        return buffered.end(i);
+      }
+    }
+    return 0;
+  };
+
+  const bufferPercentage = duration ? (getBufferedTime() / duration) * 100 : 0;
+
   return (
     <div 
       ref={playerRef}
@@ -194,8 +264,16 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         poster={poster} 
         className="w-full h-full object-contain"
         onClick={togglePlay}
-        preload="metadata"
+        preload="auto"
+        playsInline
       />
+
+      {/* Loading indicator */}
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
 
       {/* Video Title */}
       {title && (
@@ -231,8 +309,15 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           isControlsVisible ? 'opacity-100' : 'opacity-0'
         )}
       >
-        {/* Progress bar */}
-        <div className="mb-2">
+        {/* Progress bar container */}
+        <div className="relative mb-2 h-2">
+          {/* Buffer indicator */}
+          <div 
+            className="absolute top-0 left-0 h-2 bg-white/20 rounded-full"
+            style={{ width: `${bufferPercentage}%` }}
+          ></div>
+          
+          {/* Progress slider */}
           <Slider
             value={[currentTime]} 
             max={duration || 100}
@@ -291,12 +376,36 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
             </div>
           </div>
 
-          <button 
-            className="text-white hover:text-primary transition-colors"
-            onClick={toggleFullscreen}
-          >
-            <Maximize className="h-5 w-5" />
-          </button>
+          <div className="flex items-center space-x-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-white hover:text-primary transition-colors">
+                  <Settings className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => changeQuality('auto')} className={playbackQuality === 'auto' ? 'bg-accent' : ''}>
+                  Auto
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeQuality('720p')} className={playbackQuality === '720p' ? 'bg-accent' : ''}>
+                  720p
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeQuality('480p')} className={playbackQuality === '480p' ? 'bg-accent' : ''}>
+                  480p
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeQuality('360p')} className={playbackQuality === '360p' ? 'bg-accent' : ''}>
+                  360p
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <button 
+              className="text-white hover:text-primary transition-colors"
+              onClick={toggleFullscreen}
+            >
+              <Maximize className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

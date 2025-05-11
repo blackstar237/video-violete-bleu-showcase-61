@@ -32,6 +32,7 @@ const VideoHero: React.FC<VideoHeroProps> = ({
           playsInline
           className="w-full h-full object-cover"
           poster={backgroundUrl}
+          preload="auto"
         >
           <source src={backgroundUrl} type="video/mp4" />
           <img src={backgroundUrl} alt={title} className="w-full h-full object-cover" />
