@@ -17,6 +17,9 @@ const VideoHero: React.FC<VideoHeroProps> = ({
   description,
   backgroundUrl,
 }) => {
+  // ID fixe pour la redirection vers la vidéo spécifique
+  const targetVideoId = "1c2c399c-473e-45a8-9e2a-5ffe0720c584";
+  
   return (
     <div className="relative h-screen w-full overflow-hidden">
       {/* Video or Image Background */}
@@ -45,7 +48,7 @@ const VideoHero: React.FC<VideoHeroProps> = ({
             {description}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 items-center">
-            <Link to={`/video/${id}`}>
+            <Link to={`/video/${targetVideoId}`}>
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-black">
                 <Play className="mr-2 h-5 w-5" />
                 Regarder la vidéo
