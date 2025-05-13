@@ -3,10 +3,8 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
 
 const ContactForm: React.FC = () => {
-  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,13 +23,18 @@ const ContactForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    // Simuler l'envoi du formulaire
+    
+    // Format the message for WhatsApp
+    const whatsappMessage = `*Nouveau message de contact*\n\n*Nom:* ${formData.name}\n*Email:* ${formData.email}\n*Sujet:* ${formData.subject}\n\n*Message:*\n${formData.message}`;
+    
+    // Create WhatsApp URL with the phone number and encoded message
+    const whatsappUrl = `https://wa.me/237695666275?text=${encodeURIComponent(whatsappMessage)}`;
+    
+    // Open WhatsApp in a new tab
+    window.open(whatsappUrl, '_blank');
+    
+    // Reset form after a short delay
     setTimeout(() => {
-      toast({
-        title: "Message envoyé !",
-        description: "Nous vous répondrons dans les plus brefs délais.",
-      });
       setFormData({
         name: "",
         email: "",
@@ -39,7 +42,7 @@ const ContactForm: React.FC = () => {
         message: "",
       });
       setIsSubmitting(false);
-    }, 1500);
+    }, 500);
   };
 
   return (
@@ -109,7 +112,7 @@ const ContactForm: React.FC = () => {
         disabled={isSubmitting}
         className="w-full md:w-auto bg-primary hover:bg-primary/80 text-primary-foreground"
       >
-        {isSubmitting ? "Envoi en cours..." : "Envoyer le message"}
+        {isSubmitting ? "Redirection..." : "Envoyer le message"}
       </Button>
     </form>
   );
