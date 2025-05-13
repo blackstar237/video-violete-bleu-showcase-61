@@ -45,8 +45,7 @@ const ContactPage = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-2">Adresse</h3>
                     <p className="text-white/70">
-                      123 Rue de la Vidéo<br />
-                      75000 Paris, France
+                      Bafoussam, Cameroun
                     </p>
                   </div>
                 </div>
@@ -60,13 +59,8 @@ const ContactPage = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-2">Email</h3>
                     <p className="text-white/70">
-                      <a href="mailto:contact@videofolio.fr" className="hover:text-primary transition-colors">
-                        contact@videofolio.fr
-                      </a>
-                    </p>
-                    <p className="text-white/70">
-                      <a href="mailto:info@videofolio.fr" className="hover:text-primary transition-colors">
-                        info@videofolio.fr
+                      <a href="mailto:vidéos@digit-service.org" className="hover:text-primary transition-colors">
+                        vidéos@digit-service.org
                       </a>
                     </p>
                   </div>
@@ -79,10 +73,10 @@ const ContactPage = () => {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">Téléphone</h3>
+                    <h3 className="text-lg font-semibold text-white mb-2">WhatsApp</h3>
                     <p className="text-white/70">
-                      <a href="tel:+33123456789" className="hover:text-primary transition-colors">
-                        +33 1 23 45 67 89
+                      <a href="https://wa.me/237695666275" className="hover:text-primary transition-colors">
+                        +237 6 95 66 62 75
                       </a>
                     </p>
                   </div>
@@ -97,8 +91,8 @@ const ContactPage = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-2">Heures d'ouverture</h3>
                     <p className="text-white/70">
-                      Lundi - Vendredi: 9h00 - 18h00<br />
-                      Samedi & Dimanche: Fermé
+                      Lundi - Samedi: 9h00 - 18h00<br />
+                      Dimanche: Fermé
                     </p>
                   </div>
                 </div>
@@ -132,7 +126,7 @@ const ContactPage = () => {
           <div className="mt-16">
             <div className="glass-card p-1 rounded-lg overflow-hidden">
               <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d83998.76457430352!2d2.2769952624737387!3d48.85894658138326!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e1f06e2b70f%3A0x40b82c3688c9460!2sParis%2C%20France!5e0!3m2!1sen!2sus!4v1620131707087!5m2!1sen!2sus"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63724.39399577603!2d10.37841985!3d5.47851805!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x105f981aaab9e2a1%3A0xdd5f5a518a4aeffa!2sBafoussam%2C%20Cameroon!5e0!3m2!1sen!2sus!4v1684566819098!5m2!1sen!2sus"
                 width="100%" 
                 height="400" 
                 style={{ border: 0 }} 

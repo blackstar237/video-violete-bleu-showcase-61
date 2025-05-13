@@ -116,17 +116,16 @@ const Footer = () => {
             <h3 className="text-sm font-medium uppercase tracking-wider text-foreground mb-4">Contact</h3>
             <address className="not-italic">
               <p className="text-sm text-muted-foreground mb-2">
-                123 Rue de la Vidéo<br />
-                75000 Paris, France
+                Bafoussam, Cameroun
               </p>
               <p className="text-sm text-muted-foreground mb-2">
-                <a href="tel:+33123456789" className="hover:text-primary transition-colors">
-                  +33 1 23 45 67 89
+                <a href="https://wa.me/237695666275" className="hover:text-primary transition-colors">
+                  WhatsApp: +237 6 95 66 62 75
                 </a>
               </p>
               <p className="text-sm text-muted-foreground">
-                <a href="mailto:contact@videofolio.fr" className="hover:text-primary transition-colors">
-                  contact@videofolio.fr
+                <a href="mailto:vidéos@digit-service.org" className="hover:text-primary transition-colors">
+                  vidéos@digit-service.org
                 </a>
               </p>
             </address>
